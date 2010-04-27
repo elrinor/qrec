@@ -11,7 +11,9 @@ SOURCES = \
   src/qr/Preprocessor.cpp \
   src/qr/RelationConstructor.cpp \
   src/qr/RelationFilter.cpp \
-  src/qr/SegmentClassifier.cpp \
+  src/qr/EdgeClassifier.cpp \
+  src/qr/LoopConstructor.cpp \
+  src/qr/VertexClassifier.cpp \
   src/qr/ViewConstructor.cpp \
   src/qr/ViewGlView.cpp \
   src/qr/ViewBoxGlItem.cpp \
@@ -21,7 +23,7 @@ HEADERS = \
   src/qr/MainWindow.h \
   src/qr/ViewGlView.h \
 
-FORMS = 
+FORMS = \
 
 RESOURCES = \
 
