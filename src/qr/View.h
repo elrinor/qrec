@@ -11,6 +11,8 @@
 #include "Hatch.h"
 #include "ViewRelation.h"
 #include "CuttingChain.h"
+#include "Vertex.h"
+#include "Loop.h"
 
 namespace qr {
 // -------------------------------------------------------------------------- //
@@ -34,16 +36,24 @@ namespace qr {
       UNKNOWN = -1
     };
 
-    View(int id): mId(id), mType(REGULAR), mIsBoundingRectValid(false), mProjectionPlane(UNKNOWN), mTransform(Transform3d::Identity()), mSourceCuttingChain(NULL) {}
+    View(int id): mId(id), mType(REGULAR), mIsBoundingRectValid(false), mProjectionPlane(UNKNOWN), mTransform(Transform3d::Identity()), mSourceCuttingChain(NULL), mOuterLoop(NULL) {}
 
     bool includes(Edge* segment) const {
-      return mAllSegments.contains(segment); /* TODO: slow */
+      return mAllEdges.contains(segment); /* TODO: slow */
     }
 
-    void add(Edge* segment) {
-      mSegmentsByRole[segment->role()].push_back(segment);
-      mAllSegments.insert(mAllSegments.end(), segment);
-      segment->setView(this);
+    void add(Edge* edge) {
+      assert(!mAllEdges.contains(edge));
+
+      mEdgesByRole[edge->role()].push_back(edge);
+      mAllEdges.insert(mAllEdges.end(), edge);
+      edge->setView(this);
+
+      Vertex *end0 = vertex(edge->end(0), 1.0e-6), *end1 = vertex(edge->end(1), 1.0e-6); /* TODO: EPS */
+      edge->setVertex(0, end0);
+      edge->setVertex(1, end1);
+      end0->addEdge(edge);
+      end1->addEdge(edge);
     }
 
     void add(Label* label) {
@@ -64,23 +74,36 @@ namespace qr {
     }
 
     void add(CuttingChain* cuttingChain) {
-      assert(cuttingChain->segments().size() > 0);
-      assert(cuttingChain->view() == NULL);
+      assert(cuttingChain->edges().size() > 0);
       
-      foreach(Edge* segment, cuttingChain->segments())
-        add(segment);
+      foreach(Edge* edge, cuttingChain->edges())
+        add(edge);
 
       mCuttingChains.push_back(cuttingChain);
       cuttingChain->setView(this);
     }
 
-    void remove(Edge* segment) {
-      assert(mAllSegments.contains(segment));
+    void add(Loop* loop) {
+      assert(!mLoops.contains(loop));
 
-      mSegmentsByRole[segment->role()].removeOne(segment);
-      mAllSegments.removeOne(segment);
+      mLoops.push_back(loop);
+      loop->setView(this);
+    }
 
-      if(segment->role() == Edge::NORMAL)
+    void remove(Edge* edge) {
+      assert(edge->view() == this);
+
+      mEdgesByRole[edge->role()].removeOne(edge);
+      mAllEdges.removeOne(edge);
+
+      edge->vertex(0)->removeEdge(edge);
+      edge->vertex(1)->removeEdge(edge);
+      if(edge->vertex(0)->edges().size() == 0)
+        remove(edge->vertex(0));
+      if(edge->vertex(1)->edges().size() == 0)
+        remove(edge->vertex(1));
+
+      if(edge->role() == Edge::NORMAL)
         mIsBoundingRectValid = false;
     }
 
@@ -93,7 +116,7 @@ namespace qr {
     const Rect2d& boundingRect() const {
       if(!mIsBoundingRectValid) {
         mBoundingRect = Rect2d();
-        foreach(Edge* segment, mSegmentsByRole[Edge::NORMAL])
+        foreach(Edge* segment, mEdgesByRole[Edge::NORMAL])
           mBoundingRect.extend(segment->boundingRect());
         mIsBoundingRectValid = true;
       }
@@ -108,12 +131,26 @@ namespace qr {
       return center()[index];
     }
 
-    const QList<Edge*> segments() const {
-      return mAllSegments;
+    const QList<Vertex*>& vertices() const {
+      return mVertices;
     }
 
-    const QList<Edge*> segments(Edge::Role role) const {
-      return mSegmentsByRole[role];
+    Vertex* vertex(const Vector2d& pos2d, double prec) {
+      foreach(Vertex* vertex, mVertices)
+        if((pos2d - vertex->pos2d()).isZero(prec))
+          return vertex;
+
+      Vertex* vertex = new Vertex(pos2d);
+      add(vertex);
+      return vertex;
+    }
+
+    const QList<Edge*>& edges() const {
+      return mAllEdges;
+    }
+
+    const QList<Edge*>& edges(Edge::Role role) const {
+      return mEdgesByRole[role];
     }
 
     const QList<Label*>& labels() const {
@@ -122,6 +159,20 @@ namespace qr {
 
     const QList<Hatch*>& hatches() const {
       return mHatches;
+    }
+
+    const QList<Loop*>& loops() const {
+      return mLoops;
+    }
+
+    Loop* outerLoop() const {
+      return mOuterLoop;
+    }
+
+    void setOuterLoop(Loop* loop) {
+      assert(mLoops.contains(loop));
+        
+      mOuterLoop = loop;
     }
 
     const QList<CuttingChain*>& cuttingChains() const {
@@ -196,6 +247,9 @@ namespace qr {
 
     void setTransform(const Transform3d& transform) {
       mTransform = transform;
+
+      foreach(Vertex* vertex, mVertices)
+        vertex->setPos3d(mTransform * Vector3d(vertex->pos2d().x(), vertex->pos2d().y(), 0));
     }
 
     CuttingChain* sourceCuttingChain() const {
@@ -210,12 +264,29 @@ namespace qr {
 
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
+    void add(Vertex* vertex) {
+      mVertices.push_back(vertex);
+
+      vertex->setView(this);
+    }
+
+  protected:
+    void remove(Vertex* vertex) {
+      assert(mVertices.contains(vertex));
+
+      mVertices.removeOne(vertex);
+      delete vertex;
+    }
+
   private:
-    boost::array<QList<Edge*>, Edge::MAX_ROLE + 1> mSegmentsByRole;
+    boost::array<QList<Edge*>, Edge::MAX_ROLE + 1> mEdgesByRole;
+    QList<Vertex*> mVertices;
     QList<CuttingChain*> mCuttingChains;
-    QList<Edge*> mAllSegments;
+    QList<Edge*> mAllEdges;
     QList<Label*> mLabels;
     QList<Hatch*> mHatches;
+    QList<Loop*> mLoops;
+    Loop* mOuterLoop;
     QList<ViewRelation*> mRelations;
     int mId;
     Type mType;

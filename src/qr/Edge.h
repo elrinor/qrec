@@ -12,8 +12,11 @@
 #include "GSegment.h"
 #include "Utility.h"
 
+
 namespace qr {
   class Hatch;
+  class Vertex;
+  class Loop;
 
 // -------------------------------------------------------------------------- //
 // Edge
@@ -139,9 +142,35 @@ namespace qr {
       return end(isExtension(0, other, prec) ? 1 : 0);
     }
 
-    const Vector2d& touchingEnd(Edge* other, double prec) const {
-      return end(isExtension(0, other, prec) ? 0 : 1);
+    template<int endIndex>
+    Vertex* vertex() const {
+      return vertex(endIndex);
     }
+
+    Vertex* vertex(int endIndex) const {
+      return mVertices[endIndex];
+    }
+
+    Vertex* otherVertex(Vertex* vertex) const {
+      assert(vertex == mVertices[0] || vertex == mVertices[1]);
+
+      return mVertices[0] == vertex ? mVertices[1] : mVertices[0];
+    }
+
+    template<int endIndex>
+    void setVertex(Vertex* vertex) {
+      setVertex(endIndex, vertex);
+    }
+
+    void setVertex(int endIndex, Vertex* vertex) {
+      assert(vertex != NULL && mVertices[endIndex] == NULL);
+
+      mVertices[endIndex] = vertex;
+    }
+
+    /*const Vector2d& touchingEnd(Edge* other, double prec) const {
+      return end(isExtension(0, other, prec) ? 0 : 1);
+    }*/
 
     Type type() const {
       return mType;
@@ -167,6 +196,10 @@ namespace qr {
       return mPen;
     }
 
+    void setPen(const QPen& pen) {
+      mPen = pen;
+    }
+
     const ArcData& asArc() const {
       assert(mType == ARC);
       return reinterpret_cast<const ArcData&>(mData);
@@ -190,6 +223,10 @@ namespace qr {
 
     const QList<Edge*>& extensions(int endIndex) const {
       return mExtensions[endIndex];
+    }
+
+    const QList<Edge*>& extensions(const Vector2d& myEnd, double prec) const {
+      return extensions((end(0) - myEnd).isZero(prec) ? 0 : 1);
     }
 
     template<int endIndex>
@@ -260,6 +297,16 @@ namespace qr {
       return isExtension<0>(other, prec) || isExtension<1>(other, prec);
     }
 
+    const QList<Loop*>& loops() const {
+      return mLoops;
+    }
+
+    void addLoop(Loop* loop) {
+      assert(!mLoops.contains(loop));
+
+      mLoops.push_back(loop);
+    }
+
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
   protected:
@@ -269,6 +316,7 @@ namespace qr {
       mType = type;
       mRole = role;
       mHatch = NULL;
+      mVertices[0] = mVertices[1] = NULL;
     }
 
     Segment2d mSegment;
@@ -278,6 +326,8 @@ namespace qr {
     boost::array<Vector2d, (sizeof(ArcData) + sizeof(Vector2d) - 1) / sizeof(Vector2d)> mData; /* Vector2d enforces alignment. */
     Hatch* mHatch; /* TODO: two hatches? */
     boost::array<QList<Edge*>, 2> mExtensions;
+    boost::array<Vertex*, 2> mVertices;
+    QList<Loop*> mLoops;
   };
 
 } // namespace qr

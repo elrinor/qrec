@@ -50,19 +50,19 @@ namespace qr {
               assert(bView->type() == View::SECTIONAL);
               bView->setSourceCuttingChain(cuttingChain);
 
-              aView->add(new ViewRelation(ViewRelation::NAME, aView, bView, ViewRelation::directionOf(cuttingChain->segment(0)->asSegment().asLine().direction())));
+              aView->add(new ViewRelation(ViewRelation::NAME, aView, bView, ViewRelation::directionOf(cuttingChain->edge(0)->asSegment().asLine().direction())));
             }
           }
         }
 
         /* Search for center correspondence. */
         bool centerFound = false;
-        foreach(Edge* segment, aView->segments(Edge::NORMAL)) {
+        foreach(Edge* segment, aView->edges(Edge::NORMAL)) {
           if(segment->type() != Edge::ARC)
             continue;
           
           const Edge::ArcData& arc = segment->asArc();
-          foreach(Edge* segment, bView->segments(Edge::CENTER)) {
+          foreach(Edge* segment, bView->edges(Edge::CENTER)) {
             if(segment->asSegment().asLine().contains(arc.center(), mPrec)) {
               aView->add(new ViewRelation(ViewRelation::CENTER, aView, bView, ViewRelation::perpendicularDirection(ViewRelation::directionOf(segment->asSegment().asLine().direction()))));
               centerFound = true;

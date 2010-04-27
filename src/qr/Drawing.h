@@ -16,18 +16,18 @@ namespace qr {
   public:
     Drawing() {}
 
-    Drawing(const QList<Edge*>& segments, const QList<Label*>& labels, const QList<Hatch*>& hatches): mSegments(segments), mLabels(labels), mHatches(hatches) {}
+    Drawing(const QList<Edge*>& edges, const QList<Label*>& labels, const QList<Hatch*>& hatches): mEdges(edges), mLabels(labels), mHatches(hatches) {}
 
-    const QList<Edge*>& segments() const {
-      return mSegments;
+    const QList<Edge*>& edges() const {
+      return mEdges;
     }
 
-    void addSegment(Edge* segment) {
-      mSegments.push_back(segment);
+    void addEdge(Edge* segment) {
+      mEdges.push_back(segment);
     }
 
-    void setSegments(const QList<Edge*>& segments) {
-      mSegments = segments;
+    void setEdges(const QList<Edge*>& segments) {
+      mEdges = segments;
     }
 
     const QList<Label*>& labels() const {
@@ -55,7 +55,7 @@ namespace qr {
     }
 
   private:
-    QList<Edge*> mSegments;
+    QList<Edge*> mEdges;
     QList<Label*> mLabels;
     QList<Hatch*> mHatches;
   };

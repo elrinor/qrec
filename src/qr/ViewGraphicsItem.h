@@ -16,7 +16,7 @@ namespace qr {
     ViewGraphicsItem(const View* view): mView(view) {
       /* Calculate real bounding rectangle. */
       qr::Rect2d rect = view->boundingRect();
-      foreach(qr::Edge* segment, view->segments())
+      foreach(qr::Edge* segment, view->edges())
         rect.extend(segment->boundingRect());
       foreach(qr::Label* label, view->labels()) {
         rect.extend(label->position());
