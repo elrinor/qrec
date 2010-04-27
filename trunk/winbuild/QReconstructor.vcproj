@@ -94,6 +94,10 @@
 					Name="Primitives"
 					>
 					<File
+						RelativePath="..\src\qr\CuttingChain.h"
+						>
+					</File>
+					<File
 						RelativePath="..\src\qr\Edge.h"
 						>
 					</File>
@@ -106,7 +110,15 @@
 						>
 					</File>
 					<File
+						RelativePath="..\src\qr\Loop.h"
+						>
+					</File>
+					<File
 						RelativePath="..\src\qr\Primitive.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\Vertex.h"
 						>
 					</File>
 				</Filter>
@@ -158,10 +170,6 @@
 					Name="Views2d"
 					>
 					<File
-						RelativePath="..\src\qr\CuttingChain.h"
-						>
-					</File>
-					<File
 						RelativePath="..\src\qr\View.h"
 						>
 					</File>
@@ -179,6 +187,14 @@
 					</File>
 					<File
 						RelativePath="..\src\qr\EdgeClassifier.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\LoopConstructor.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\LoopConstructor.h"
 						>
 					</File>
 					<File
@@ -211,6 +227,14 @@
 					</File>
 					<File
 						RelativePath="..\src\qr\RelationFilter.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\VertexClassifier.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\VertexClassifier.h"
 						>
 					</File>
 					<File
