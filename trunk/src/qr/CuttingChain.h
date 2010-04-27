@@ -5,6 +5,7 @@
 #include <boost/noncopyable.hpp>
 #include <QString>
 #include <QList>
+#include "Primitive.h"
 
 namespace qr {
   class Edge;
@@ -12,46 +13,36 @@ namespace qr {
 // -------------------------------------------------------------------------- //
 // CuttingChain
 // -------------------------------------------------------------------------- //
-  class CuttingChain: private boost::noncopyable {
+  class CuttingChain: public Primitive, private boost::noncopyable {
   public:
-    CuttingChain(const QString& name): mName(name), mView(NULL) {}
+    CuttingChain(const QString& name): mName(name) {}
 
     const QString& name() const {
       return mName;
     }
 
-    const QList<Edge*>& segments() const {
-      return mSegments;
+    const QList<Edge*>& edges() const {
+      return mEdges;
     }
 
-    Edge* segment(int index) const {
-      return mSegments[index];
+    Edge* edge(int index) const {
+      return mEdges[index];
     }
 
-    void addSegment(Edge* segment) {
-      assert(segment->role() == Edge::CUTTING);
+    void addEdge(Edge* edge) {
+      assert(edge->role() == Edge::CUTTING);
 
-      if(!mSegments.empty()) {
-        assert(segment->isExtension<0>(mSegments.back(), 1.0e-6) && mSegments.back()->isExtension<1>(segment, 1.0e-6)); /* TODO: EPS */
-        mSegments.back()->addExtension<1>(segment);
-        segment->addExtension<0>(mSegments.back());
+      if(!mEdges.empty()) {
+        assert(edge->isExtension<0>(mEdges.back(), 1.0e-6) && mEdges.back()->isExtension<1>(edge, 1.0e-6)); /* TODO: EPS */
+        mEdges.back()->addExtension<1>(edge);
+        edge->addExtension<0>(mEdges.back());
       }
-      mSegments.push_back(segment);
-    }
-
-    View* view() const {
-      return mView;
-    }
-
-    void setView(View* view) {
-      assert(mView == NULL);
-      mView = view;
+      mEdges.push_back(edge);
     }
 
   private:
-    QList<Edge*> mSegments;
+    QList<Edge*> mEdges;
     QString mName;
-    View* mView;
   };
 
 } // namespace qr

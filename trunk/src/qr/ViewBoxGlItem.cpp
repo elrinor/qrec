@@ -53,11 +53,11 @@ namespace qr {
 
     foreach(View* view, mViewBox->views()) {
       Plane3d viewPlane = Plane3d(view->transform() * Vector3d(0, 0, 0), view->transform().linear() * Vector3d(0, 0, 1));
-      foreach(Edge* segment, view->segments())
+      foreach(Edge* segment, view->edges())
         drawSegment(view, segment, segment->color(), viewPlane);
 
       if(view->type() == View::SECTIONAL) { /* TODO */
-        Plane3d cuttingPlane = Plane3d(view->sourceCuttingChain()->view()->transform() * to3d(view->sourceCuttingChain()->segment(0)->end(0)), view->transform().linear() * Vector3d(0, 0, 1));
+        Plane3d cuttingPlane = Plane3d(view->sourceCuttingChain()->view()->transform() * to3d(view->sourceCuttingChain()->edge(0)->end(0)), view->transform().linear() * Vector3d(0, 0, 1));
         foreach(Hatch* hatch, view->hatches()) {
           foreach(Edge* segment, hatch->segments()) {
             drawSegment(view, segment, hatch->brush().color(), cuttingPlane);

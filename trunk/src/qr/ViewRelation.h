@@ -7,6 +7,7 @@
 #include <boost/array.hpp>
 #include "Algebra.h"
 
+
 namespace qr {
   class View;
 

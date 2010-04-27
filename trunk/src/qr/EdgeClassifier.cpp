@@ -5,7 +5,7 @@ namespace qr {
 // EdgeClassifier
 // -------------------------------------------------------------------------- //
   void EdgeClassifier::operator() () {
-    foreach(Edge* edge, mDrawing->segments()) {
+    foreach(Edge* edge, mDrawing->edges()) {
       switch(edge->pen().style()) {
         case Qt::DashDotLine:
           edge->setRole(Edge::CENTER);

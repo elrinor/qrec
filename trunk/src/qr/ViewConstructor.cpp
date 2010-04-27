@@ -19,9 +19,9 @@ namespace qr {
   QList<View*> ViewConstructor::operator() () {
     assert(mViews.empty());
 
-    /* Create set of all normal segments. */
+    /* Create set of all normal edges. */
     QSet<Edge*> unprocessedEdges;
-    foreach(Edge* edge, mDrawing->segments())
+    foreach(Edge* edge, mDrawing->edges())
       if(edge->role() == Edge::NORMAL)
         unprocessedEdges.insert(edge);
 
@@ -86,8 +86,8 @@ namespace qr {
       mViews.push_back(view);
     }
 
-    /* Add other segments,... */
-    foreach(Edge* edge, mDrawing->segments())
+    /* Add other edges,... */
+    foreach(Edge* edge, mDrawing->edges())
       if(edge->role() != Edge::NORMAL)
         closestView(edge->boundingRect().center())->add(edge);
 
@@ -110,39 +110,39 @@ namespace qr {
 
     /* Trace cutting lines. */
     foreach(View* view, mViews) {
-      QList<Edge*> segments = view->segments(Edge::CUTTING);
-      while(!segments.empty()) {
+      QList<Edge*> edges = view->edges(Edge::CUTTING);
+      while(!edges.empty()) {
         QList<Edge*> chain;
         bool chainValid = false;
         Edge* startEdge = NULL;
-        foreach(Edge* segment, segments) {
-          if(!view->boundingRect().contains(segment->asSegment(), mPrec)) {
-            startEdge = segment;
+        foreach(Edge* edge, edges) {
+          if(!view->boundingRect().contains(edge->asSegment(), mPrec)) {
+            startEdge = edge;
             break;
           }
         }
         if(startEdge == NULL)
           break;
         chain.push_back(startEdge);
-        segments.removeOne(startEdge);
+        edges.removeOne(startEdge);
 
         while(true) {
           Edge* endEdge = NULL;
           double minSquaredNorm = std::numeric_limits<double>::max();
-          foreach(Edge* segment, segments) {
-            if(!startEdge->asSegment().asLine().isCoincident(segment->asSegment().asLine(), mPrec))
+          foreach(Edge* edge, edges) {
+            if(!startEdge->asSegment().asLine().isCoincident(edge->asSegment().asLine(), mPrec))
               continue;
 
-            double squaredNorm = (startEdge->boundingRect().center() - segment->boundingRect().center()).squaredNorm();
+            double squaredNorm = (startEdge->boundingRect().center() - edge->boundingRect().center()).squaredNorm();
             if(squaredNorm < minSquaredNorm) {
               minSquaredNorm = squaredNorm;
-              endEdge = segment;
+              endEdge = edge;
             }
           }
           if(endEdge == NULL)
             break;
           chain.push_back(endEdge);
-          segments.removeOne(endEdge);
+          edges.removeOne(endEdge);
 
           if(!view->boundingRect().contains(endEdge->asSegment(), mPrec)) {
             chainValid = true;
@@ -154,7 +154,7 @@ namespace qr {
 
           startEdge = endEdge->extensions().back(); /* TODO: check whether we correctly calculate extensions for central lines */
           chain.push_back(startEdge);
-          segments.removeOne(startEdge);
+          edges.removeOne(startEdge);
         }
 
         QString name;
@@ -187,7 +187,7 @@ namespace qr {
               chain[i]->style()
               );
             cuttingEdge->setRole(Edge::CUTTING);
-            cuttingChain->addSegment(cuttingEdge);
+            cuttingChain->addEdge(cuttingEdge);
           }
 
           view->add(cuttingChain);

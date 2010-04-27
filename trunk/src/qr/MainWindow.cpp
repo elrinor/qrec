@@ -12,9 +12,11 @@
 #include "Preprocessor.h"
 #include "EdgeClassifier.h"
 #include "ViewConstructor.h"
+#include "LoopConstructor.h"
 #include "RelationConstructor.h"
 #include "RelationFilter.h"
 #include "PlaneFolder.h"
+#include "VertexClassifier.h"
 #include "HatchGraphicsItem.h"
 #include "SegmentGraphicsItem.h"
 #include "LabelGraphicsItem.h"
@@ -87,6 +89,8 @@ namespace qr {
     (void) EdgeClassifier(mDrawing)();
     (void) Preprocessor(mDrawing, 1.0e-6)();
     QList<View*> views = ViewConstructor(mDrawing, 1.0e-6)();
+    (void) VertexClassifier(views)();
+    (void) LoopConstructor(views, 1.0e-6)();
     (void) RelationConstructor(views, 1.0e-6)();
     (void) RelationFilter(views)();
     ViewBox* viewBox = PlaneFolder(views)();
@@ -97,7 +101,7 @@ namespace qr {
       mGraphicsScene->addItem(new ViewGraphicsItem(view));
       foreach(Hatch* hatch, view->hatches())
         mGraphicsScene->addItem(new HatchGraphicsItem(hatch));
-      foreach(Edge* segment, view->segments())
+      foreach(Edge* segment, view->edges())
         mGraphicsScene->addItem(new SegmentGraphicsItem(segment));
       foreach(Label* label, view->labels())
         mGraphicsScene->addItem(new LabelGraphicsItem(label));

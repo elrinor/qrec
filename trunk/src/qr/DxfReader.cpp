@@ -110,22 +110,24 @@ namespace qr {
         return Qt::DashDotLine;
       else if(lineType == "DASHEDX2")
         return Qt::DashLine;
-      else
+      else if(lineType == "ByLayer")
         return Qt::SolidLine;
+      else
+        Unreachable();
     }
 
     virtual void addLine(const DL_LineData& data) {
-      mDrawing->addSegment(new Edge(Edge::Line(), Vector2d(data.x1, data.y1), Vector2d(data.x2, data.y2), color(), penStyle()));
+      mDrawing->addEdge(new Edge(Edge::Line(), Vector2d(data.x1, data.y1), Vector2d(data.x2, data.y2), color(), penStyle()));
     }
 
     virtual void addArc(const DL_ArcData& data) {
       foreach(Edge* segment, breakArc(data.cx, data.cy, data.radius, data.angle1, data.angle2))
-        mDrawing->addSegment(segment);
+        mDrawing->addEdge(segment);
     }
 
     virtual void addCircle(const DL_CircleData& data) {
       foreach(Edge* segment, breakCircle(data.cx, data.cy, data.radius))
-        mDrawing->addSegment(segment);
+        mDrawing->addEdge(segment);
     }
 
     virtual void addText(const DL_TextData& data) {
@@ -152,7 +154,7 @@ namespace qr {
         segment = new Edge(Edge::Line(), Vector2d(data.x1, data.y1), Vector2d(data.x2, data.y2), color(), penStyle());
         segment->setHatch(hatch);
         hatch->addSegment(segment);
-        mDrawing->addSegment(segment);
+        mDrawing->addEdge(segment);
       } else if(data.type == 2) {
         double angle1 = data.angle1, angle2 = data.angle2;
         if(!data.ccw)
@@ -160,7 +162,7 @@ namespace qr {
         foreach(Edge* segment, breakArc(data.cx, data.cy, data.radius, angle1, angle2)) {
           segment->setHatch(hatch);
           hatch->addSegment(segment);
-          mDrawing->addSegment(segment);
+          mDrawing->addEdge(segment);
         }
       } else {
         Unreachable();
