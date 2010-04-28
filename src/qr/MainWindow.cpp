@@ -148,7 +148,7 @@ namespace qr {
         carve::csg::CSG csg;
         poly = p->eval(csg);
         break;
-      } catch (carve::exception& e) {}
+      } catch (carve::exception&) {}
     }
 
     if(poly == NULL)

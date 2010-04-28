@@ -10,6 +10,45 @@
 
 namespace qr {
 // -------------------------------------------------------------------------- //
+// LoopVertex
+// -------------------------------------------------------------------------- //
+  class LoopVertex {
+  public:
+    enum Type {
+      NORMAL,
+      TANGENT
+    };
+
+    LoopVertex(Type type, Edge* prevEdge, Edge* nextEdge, Vertex* vertex): mType(type), mPrevEdge(prevEdge), mNextEdge(nextEdge), mVertex(vertex) {
+      assert(prevEdge->commonVertex(nextEdge) == vertex);
+      assert(vertex != NULL);
+    };
+
+    Type type() const {
+      return mType;
+    }
+
+    Vertex* vertex() const {
+      return mVertex;
+    }
+
+    Edge* prevEdge() const {
+      return mPrevEdge;
+    }
+
+    Edge* nextEdge() const {
+      return mNextEdge;
+    }
+
+  private:
+    Type mType;
+    Vertex* mVertex;
+    Edge* mPrevEdge;
+    Edge* mNextEdge;
+  };
+
+
+// -------------------------------------------------------------------------- //
 // Loop
 // -------------------------------------------------------------------------- //
   class Loop: public Primitive, private boost::noncopyable {
@@ -32,21 +71,27 @@ namespace qr {
       return mEdges[index];
     }
 
-    const QList<Vertex*>& vertices() const {
+    const QList<LoopVertex>& vertices() const {
       assert(mEdges.size() > 1);
 
       if(!mIsVerticesValid) {
         mVertices.clear();
         for(int i0 = 0; i0 < mEdges.size(); i0++) {
-          int i1 = (i0 + 1) % mEdges.size();
-
-          Vertex* vertex = mEdges[i0]->commonVertex(mEdges[i1]);
-          assert(vertex != NULL);
-          mVertices.push_back(vertex);
+          Edge* prevEdge = mEdges[i0];
+          Edge* nextEdge = mEdges[(i0 + 1) % mEdges.size()];
+          Vertex* vertex = prevEdge->commonVertex(nextEdge);
+          LoopVertex::Type type = isCollinear(prevEdge->tangent(vertex), nextEdge->tangent(vertex), 1.0e-4) ? LoopVertex::TANGENT : LoopVertex::NORMAL; /* TODO: EPS */
+          mVertices.push_back(LoopVertex(type, prevEdge, nextEdge, vertex)); 
         }
         mIsVerticesValid = true;
       }
       return mVertices;
+    }
+
+    const LoopVertex& vertex(int index) const {
+      if(!mIsVerticesValid)
+        vertices();
+      return mVertices[index];
     }
 
     bool isFundamental() const {
@@ -80,7 +125,7 @@ namespace qr {
     QList<Edge*> mEdges;
 
     mutable bool mIsVerticesValid;
-    mutable QList<Vertex*> mVertices;
+    mutable QList<LoopVertex> mVertices;
   };
 
 } // namespace qr

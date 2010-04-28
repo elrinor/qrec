@@ -222,6 +222,15 @@ namespace qr {
 
 
 // -------------------------------------------------------------------------- //
+// Operations on vectors
+// -------------------------------------------------------------------------- //
+  template<class Vector>
+  inline bool isCollinear(const Vector& v0, const Vector& v1, double prec) {
+    return detail::linearlyDependent(v0, v1, prec);
+  }
+
+
+// -------------------------------------------------------------------------- //
 // Conversions
 // -------------------------------------------------------------------------- //
   template<class Vector>
