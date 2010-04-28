@@ -41,8 +41,8 @@ namespace qr {
         QTransform newTransform = QTransform(
           arc.longAxis().x(), 
           arc.shortAxis().x(),
-          arc.longAxis().y(),
-          arc.shortAxis().y(),
+          -arc.longAxis().y(),
+          -arc.shortAxis().y(),
           arc.center().x(),
           arc.center().y()
         );

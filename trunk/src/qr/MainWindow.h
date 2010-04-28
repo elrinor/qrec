@@ -10,6 +10,8 @@
 namespace qr {
   class Drawing;
   class ViewGlView;
+  class ViewBoxGlItem;
+  class PolyhedronGlItem;
 
 // -------------------------------------------------------------------------- //
 // MainWindow
@@ -23,6 +25,8 @@ namespace qr {
     void openFile();
     void useOrthogonal();
     void usePerspective();
+    void showProjections();
+    void showSolid();
 
   private:
     Drawing* mDrawing;
@@ -30,6 +34,10 @@ namespace qr {
     ViewGlView* mGlView;
     QGraphicsScene* mGraphicsScene;
     QTextEdit* mTextEdit;
+
+    ViewBoxGlItem* mViewBoxGlItem;
+    PolyhedronGlItem* mPolyhedronGlItem;
+    bool mShowProjection;
   };
 }
 

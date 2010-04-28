@@ -18,7 +18,7 @@ namespace qr {
     updateGL();
   }
 
-  void ViewGlView::addItem(ViewBoxGlItem* item) {
+  void ViewGlView::addItem(ViewGlItem* item) {
     mViewItems.push_back(item);
     
     updateGL();
@@ -31,7 +31,14 @@ namespace qr {
     glEnable(GL_CULL_FACE);
     glDisable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);
-    //glEnable(GL_MULTISAMPLE);
+    glEnable(GL_LIGHT0);
+
+    GLfloat lightAmb[] = {0.1f, 0.1f, 0.1f, 1.0f};
+    GLfloat lightDif[] = {1.0f, 1.0f, 1.0f, 1.0f};
+    GLfloat lightSpc[] = {0.0f, 0.0f, 0.0f, 1.0f};
+    glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmb);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, lightDif);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, lightSpc);
   }
 
   void ViewGlView::paintGL() {
@@ -47,15 +54,21 @@ namespace qr {
       glOrtho(-200 * ratio, 200 * ratio, -200, 200, 1, 1000);
     else
       Unreachable();
-    glMatrixMode(GL_MODELVIEW);
 
     /* Set up modelview transformation. */
+    glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(0, -mEyePos, 0, 0, 0, 0, 0, 0, 1);
+
+    /* Set light position. */
+    GLfloat lightPos[] = {-mEyePos, -mEyePos, mEyePos, 1.0f};
+    glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+
+    /* Rotate scene. */
     glMultMatrixd(mTransform.data());
 
     /* Render! */
-    foreach(ViewBoxGlItem* item, mViewItems)
+    foreach(ViewGlItem* item, mViewItems)
       item->draw();
   }
 

@@ -23,6 +23,12 @@
 #include "ViewGraphicsItem.h"
 #include "ViewBoxGlItem.h"
 #include "ViewGlView.h"
+#include "LoopExtruder.h"
+#include "PolyhedronGlItem.h"
+
+
+#include <carve/csg.hpp>
+#include <carve/tree.hpp>
 
 namespace qr {
 // -------------------------------------------------------------------------- //
@@ -59,6 +65,12 @@ namespace qr {
     QAction* perspAction = new QAction("&Perspective", this);
     connect(perspAction, SIGNAL(triggered()), this, SLOT(usePerspective()));
 
+    QAction* projAction = new QAction("&Projections", this);
+    connect(projAction, SIGNAL(triggered()), this, SLOT(showProjections()));
+
+    QAction* solidAction = new QAction("&Solid", this);
+    connect(solidAction, SIGNAL(triggered()), this, SLOT(showSolid()));
+
     QMenu* fileMenu = menuBar()->addMenu("&File");
     fileMenu->addAction(openAction);
     fileMenu->addSeparator();
@@ -67,8 +79,12 @@ namespace qr {
     QMenu* viewMenu = menuBar()->addMenu("&View");
     viewMenu->addAction(orthoAction);
     viewMenu->addAction(perspAction);
+    viewMenu->addSeparator();
+    viewMenu->addAction(projAction);
+    viewMenu->addAction(solidAction);
 
     mDrawing = NULL;
+    mShowProjection = false;
 
     resize(800, 600);
   }
@@ -115,8 +131,37 @@ namespace qr {
       }
     }
 
+    carve::poly::Polyhedron* poly = NULL;
+
+    for(int i = 0; i < 64; i++) {
+      std::random_shuffle(views.begin(), views.end());
+      carve::csg::CSG_TreeNode* p = NULL;
+      foreach(View* view, views) {
+        carve::poly::Polyhedron* bound = LoopExtruder(view->outerLoop())();
+        if(p == NULL)
+          p = new carve::csg::CSG_PolyNode(bound, true);
+        else
+          p = new carve::csg::CSG_OPNode(new carve::csg::CSG_PolyNode(bound, true), p, carve::csg::CSG::INTERSECTION, true);
+      }
+
+      try {
+        carve::csg::CSG csg;
+        poly = p->eval(csg);
+        break;
+      } catch (carve::exception& e) {}
+    }
+
+    if(poly == NULL)
+      poly = LoopExtruder(views[0]->outerLoop())();
+
+    mViewBoxGlItem = new ViewBoxGlItem(viewBox);
+    mPolyhedronGlItem = new PolyhedronGlItem(poly);
+
     mGlView->clear();
-    mGlView->addItem(new ViewBoxGlItem(viewBox));
+    if(mShowProjection)
+      mGlView->addItem(mViewBoxGlItem);
+    else
+      mGlView->addItem(mPolyhedronGlItem);
 
     mTextEdit->setPlainText(plainText);
   }
@@ -128,6 +173,20 @@ namespace qr {
 
   void MainWindow::usePerspective() {
     mGlView->setProjectionType(ViewGlView::PERSPECTIVE);
+    mGlView->updateGL();
+  }
+
+  void MainWindow::showProjections() {
+    mShowProjection = true;
+    mGlView->clear();
+    mGlView->addItem(mViewBoxGlItem);
+    mGlView->updateGL();
+  }
+
+  void MainWindow::showSolid() {
+    mShowProjection = false;
+    mGlView->clear();
+    mGlView->addItem(mPolyhedronGlItem);
     mGlView->updateGL();
   }
 

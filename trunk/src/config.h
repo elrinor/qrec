@@ -10,4 +10,12 @@
 #  define NOMINMAX
 #endif
 
+#ifdef _MSC_VER
+#  ifdef _DEBUG
+#    pragma comment(lib, "carvelibd.lib")
+#  else
+#    pragma comment(lib, "carvelib.lib")
+#  endif
+#endif
+
 #endif // __QRECONSTRUCTOR_CONFIG_H__
