@@ -15,6 +15,7 @@ SOURCES = \
   src/qr/LoopConstructor.cpp \
   src/qr/LoopMerger.cpp \
   src/qr/LoopExtruder.cpp \
+  src/qr/LoopFormationExtruder.cpp \
   src/qr/VertexClassifier.cpp \
   src/qr/ViewConstructor.cpp \
   src/qr/ViewGlView.cpp \

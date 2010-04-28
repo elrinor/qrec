@@ -13,6 +13,7 @@
 #include "EdgeClassifier.h"
 #include "ViewConstructor.h"
 #include "LoopConstructor.h"
+#include "LoopFormationExtruder.h"
 #include "RelationConstructor.h"
 #include "RelationFilter.h"
 #include "PlaneFolder.h"
@@ -131,28 +132,10 @@ namespace qr {
       }
     }
 
-    carve::poly::Polyhedron* poly = NULL;
-
-    for(int i = 0; i < 64; i++) {
-      std::random_shuffle(views.begin(), views.end());
-      carve::csg::CSG_TreeNode* p = NULL;
-      foreach(View* view, views) {
-        carve::poly::Polyhedron* bound = LoopExtruder(view->outerLoop())();
-        if(p == NULL)
-          p = new carve::csg::CSG_PolyNode(bound, true);
-        else
-          p = new carve::csg::CSG_OPNode(new carve::csg::CSG_PolyNode(bound, true), p, carve::csg::CSG::INTERSECTION, true);
-      }
-
-      try {
-        carve::csg::CSG csg;
-        poly = p->eval(csg);
-        break;
-      } catch (carve::exception&) {}
-    }
-
-    if(poly == NULL)
-      poly = LoopExtruder(views[0]->outerLoop())();
+    std::vector<Loop*> boundOnSolid;
+    foreach(View* view, views)
+      boundOnSolid.push_back(view->outerLoop());
+    carve::poly::Polyhedron* poly = LoopFormationExtruder(boundOnSolid, 64)();
 
     mViewBoxGlItem = new ViewBoxGlItem(viewBox);
     mPolyhedronGlItem = new PolyhedronGlItem(poly);
