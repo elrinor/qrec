@@ -108,7 +108,7 @@ namespace qr {
       std::string lineType = attributes.getLineType();
       if(lineType == "DASHDOT")
         return Qt::DashDotLine;
-      else if(lineType == "DASHEDX2")
+      else if(lineType == "DASHEDX2" || lineType == "DASHED")
         return Qt::DashLine;
       else if(lineType == "ByLayer")
         return Qt::SolidLine;
@@ -121,7 +121,11 @@ namespace qr {
     }
 
     virtual void addArc(const DL_ArcData& data) {
-      foreach(Edge* segment, breakArc(data.cx, data.cy, data.radius, data.angle1, data.angle2))
+      double angle1 = data.angle1;
+      double angle2 = data.angle2;
+      while(angle2 < angle1)
+        angle2 += 2 * M_PI;
+      foreach(Edge* segment, breakArc(data.cx, data.cy, data.radius, angle1, angle2))
         mDrawing->addEdge(segment);
     }
 

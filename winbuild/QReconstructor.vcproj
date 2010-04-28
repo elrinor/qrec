@@ -198,6 +198,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\src\qr\LoopMerger.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\LoopMerger.h"
+						>
+					</File>
+					<File
 						RelativePath="..\src\qr\PlaneFolder.cpp"
 						>
 					</File>
@@ -282,11 +290,23 @@
 					Name="Rendering3d"
 					>
 					<File
+						RelativePath="..\src\qr\PolyhedronGlItem.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\PolyhedronGlItem.h"
+						>
+					</File>
+					<File
 						RelativePath="..\src\qr\ViewBoxGlItem.cpp"
 						>
 					</File>
 					<File
 						RelativePath="..\src\qr\ViewBoxGlItem.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\ViewGlItem.h"
 						>
 					</File>
 					<File
@@ -303,6 +323,18 @@
 					>
 					<File
 						RelativePath="..\src\qr\ViewBox.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Carve"
+					>
+					<File
+						RelativePath="..\src\qr\LoopExtruder.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\LoopExtruder.h"
 						>
 					</File>
 				</Filter>

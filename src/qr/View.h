@@ -15,6 +15,8 @@
 #include "Loop.h"
 
 namespace qr {
+  class ViewBox;
+
 // -------------------------------------------------------------------------- //
 // View
 // -------------------------------------------------------------------------- //
@@ -36,7 +38,7 @@ namespace qr {
       UNKNOWN = -1
     };
 
-    View(int id): mId(id), mType(REGULAR), mIsBoundingRectValid(false), mProjectionPlane(UNKNOWN), mTransform(Transform3d::Identity()), mSourceCuttingChain(NULL), mOuterLoop(NULL) {}
+    View(int id): mId(id), mType(REGULAR), mIsBoundingRectValid(false), mProjectionPlane(UNKNOWN), mTransform(Transform3d::Identity()), mSourceCuttingChain(NULL), mOuterLoop(NULL), mViewBox(NULL) {}
 
     bool includes(Edge* segment) const {
       return mAllEdges.contains(segment); /* TODO: slow */
@@ -237,6 +239,24 @@ namespace qr {
       return mProjectionPlane;
     }
 
+    int perpendicularAxisIndex() const {
+      assert(mProjectionPlane != UNKNOWN);
+
+      switch(mProjectionPlane) {
+      case LEFT:
+      case RIGHT:
+        return 0;
+      case FRONT:
+      case REAR:
+        return 1;
+      case TOP:
+      case BOTTOM:
+        return 2;
+      default:
+        Unreachable();
+      }
+    }
+
     void setProjectionPlane(ProjectionPlane projectionPlane) {
       mProjectionPlane = projectionPlane;
     }
@@ -270,6 +290,16 @@ namespace qr {
       vertex->setView(this);
     }
 
+    ViewBox* viewBox() const {
+      return mViewBox;
+    }
+
+    void setViewBox(ViewBox* viewBox) {
+      assert(mViewBox == NULL);
+
+      mViewBox = viewBox;
+    }
+
   protected:
     void remove(Vertex* vertex) {
       assert(mVertices.contains(vertex));
@@ -296,6 +326,7 @@ namespace qr {
     ProjectionPlane mProjectionPlane;
     Transform3d mTransform;
     CuttingChain* mSourceCuttingChain;
+    ViewBox* mViewBox;
 
     mutable bool mIsBoundingRectValid;
     mutable Rect2d mBoundingRect;

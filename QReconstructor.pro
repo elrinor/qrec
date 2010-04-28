@@ -13,10 +13,13 @@ SOURCES = \
   src/qr/RelationFilter.cpp \
   src/qr/EdgeClassifier.cpp \
   src/qr/LoopConstructor.cpp \
+  src/qr/LoopMerger.cpp \
+  src/qr/LoopExtruder.cpp \
   src/qr/VertexClassifier.cpp \
   src/qr/ViewConstructor.cpp \
   src/qr/ViewGlView.cpp \
   src/qr/ViewBoxGlItem.cpp \
+  src/qr/PolyhedronGlItem.cpp \
   src/qr/PlaneFolder.cpp \
 
 HEADERS = \

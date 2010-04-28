@@ -151,10 +151,23 @@ namespace qr {
       return mVertices[endIndex];
     }
 
+    bool hasVertex(Vertex* vertex) const {
+      return mVertices[0] == vertex || mVertices[1] == vertex;
+    }
+
     Vertex* otherVertex(Vertex* vertex) const {
       assert(vertex == mVertices[0] || vertex == mVertices[1]);
 
       return mVertices[0] == vertex ? mVertices[1] : mVertices[0];
+    }
+
+    Vertex* commonVertex(Edge* other) const {
+      if(mVertices[0] == other->mVertices[0] || mVertices[0] == other->mVertices[1])
+        return mVertices[0];
+      else if(mVertices[1] == other->mVertices[0] || mVertices[1] == other->mVertices[1])
+        return mVertices[1];
+      else
+        return NULL;
     }
 
     template<int endIndex>

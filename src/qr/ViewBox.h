@@ -21,6 +21,7 @@ namespace qr {
 
       mViews[view->projectionPlane()].push_back(view);
       mAllViews.push_back(view);
+      view->setViewBox(this);
       mIsBoundingRectValid = false;
     }
 

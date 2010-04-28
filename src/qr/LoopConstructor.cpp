@@ -56,9 +56,11 @@ namespace qr {
             isSolid = false;
         loop->setSolid(isSolid);
 
+        /*
         QColor color = QColor(rand() * 255 / RAND_MAX, rand() * 255 / RAND_MAX, rand() * 255 / RAND_MAX);
         foreach(Edge* edge, loop->edges())
           edge->setPen(QPen(color));
+        */
 
         return loop;
       } else {
@@ -79,6 +81,26 @@ namespace qr {
   void LoopConstructor::operator() () {
     foreach(View* view, mViews) {
       QSet<Edge*> visitedEdges;
+
+      /* Create outer loop. */
+      Edge* outerEdge = NULL;
+      double minX = std::numeric_limits<double>::max();
+      foreach(Edge* edge, view->edges()) {
+        double x = edge->boundingRect().center().x();
+        if(x < minX) {
+          minX = x;
+          outerEdge = edge;
+        }
+      }
+      double sumAngle = 0.0;
+      Loop* outerLoop = traceLoop(outerEdge, outerEdge->vertex(0), &sumAngle, mPrec);
+      if(!isType2(outerLoop, sumAngle))
+        outerLoop = traceLoop(outerEdge, outerEdge->vertex(1), &sumAngle, mPrec);
+      outerLoop->setFundamental(false);
+      outerLoop->setSolid(true);
+      outerLoop->setDisjoint(false);
+      view->add(outerLoop);
+      view->setOuterLoop(outerLoop);
 
       /* Create fundamental loops. */
       while(true) {
@@ -116,26 +138,6 @@ namespace qr {
         }
       }
 
-      /* Create outer loop. */
-      Edge* outerEdge = NULL;
-      double minX = std::numeric_limits<double>::max();
-      foreach(Edge* edge, view->edges()) {
-        double x = edge->boundingRect().center().x();
-        if(x < minX) {
-          minX = x;
-          outerEdge = edge;
-        }
-      }
-      double sumAngle = 0.0;
-      Loop* outerLoop = traceLoop(outerEdge, outerEdge->vertex(0), &sumAngle, mPrec);
-      if(!isType2(outerLoop, sumAngle))
-        outerLoop = traceLoop(outerEdge, outerEdge->vertex(1), &sumAngle, mPrec);
-      outerLoop->setFundamental(false);
-      outerLoop->setSolid(true);
-      outerLoop->setDisjoint(false);
-      view->add(outerLoop);
-      view->setOuterLoop(outerLoop);
-      
       /* Find disjoint loops. */
       foreach(Loop* loop, view->loops()) {
         bool isDisjoint = true;

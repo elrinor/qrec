@@ -44,7 +44,7 @@ namespace qr {
 
   } // namespace
 
-  void ViewBoxGlItem::draw() const {
+  void ViewBoxGlItem::draw() {
     glPushMatrix();
     Rect3d boundingRect = mViewBox->boundingRect();
     glTranslated(-boundingRect.size(0) / 2, -boundingRect.size(1) / 2, -boundingRect.size(2) / 2);

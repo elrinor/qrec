@@ -4,7 +4,7 @@
 #include "config.h"
 #include <QGLWidget>
 #include "View.h"
-#include "ViewBoxGlItem.h"
+#include "ViewGlItem.h"
 
 namespace qr {
 // -------------------------------------------------------------------------- //
@@ -22,7 +22,7 @@ namespace qr {
     ~ViewGlView();
 
     void clear();
-    void addItem(ViewBoxGlItem* item);
+    void addItem(ViewGlItem* item);
 
     ProjectionType projectionType() {
       return mProjectionType;
@@ -46,7 +46,7 @@ namespace qr {
     Transform3d mTransform;
     double mEyePos;
     ProjectionType mProjectionType;
-    QList<ViewBoxGlItem*> mViewItems;
+    QList<ViewGlItem*> mViewItems;
   };
 
 } // namespace qr
