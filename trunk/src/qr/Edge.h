@@ -55,8 +55,6 @@ namespace qr {
       }
 
       Vector2d point(double pos) const {
-        assert(pos >= 0 && pos <= 1);
-
         double angle = mStartAngle + pos * mSpanAngle;
         return mCenter + mLongAxis * cos(angle) + mShortAxis * sin(angle);
       }
@@ -179,6 +177,28 @@ namespace qr {
       assert(vertex != NULL && mVertices[endIndex] == NULL);
 
       mVertices[endIndex] = vertex;
+    }
+
+    template<int endIndex>
+    Vector2d tangent() const {
+      return tangent(endIndex);
+    }
+
+    Vector2d tangent(double pos) const {
+      if(mType == LINE) {
+        return mSegment.asLine().direction().normalized();
+      } else if(mType == ARC) {
+        const ArcData& arc = asArc();
+        return (arc.point(pos + 0.000001) - arc.point(pos - 0.000001)).normalized();
+      } else {
+        Unreachable();
+      }
+    }
+
+    Vector2d tangent(Vertex* vertex) const {
+      assert(hasVertex(vertex));
+
+      return tangent(vertex == mVertices[0] ? 0.0 : 1.0);
     }
 
     /*const Vector2d& touchingEnd(Edge* other, double prec) const {
