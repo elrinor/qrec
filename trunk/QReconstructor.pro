@@ -16,12 +16,15 @@ SOURCES = \
   src/qr/LoopMerger.cpp \
   src/qr/LoopExtruder.cpp \
   src/qr/LoopFormationExtruder.cpp \
+  src/qr/LoopFormationConstructor.cpp \
+  src/qr/ObjectConstructor.cpp \
   src/qr/VertexClassifier.cpp \
   src/qr/ViewConstructor.cpp \
   src/qr/ViewGlView.cpp \
   src/qr/ViewBoxGlItem.cpp \
   src/qr/PolyhedronGlItem.cpp \
   src/qr/PlaneFolder.cpp \
+  src/qr/Debug.cpp \
 
 HEADERS = \
   src/qr/MainWindow.h \
