@@ -108,7 +108,7 @@ namespace qr {
       std::string lineType = attributes.getLineType();
       if(lineType == "DASHDOT")
         return Qt::DashDotLine;
-      else if(lineType == "DASHEDX2" || lineType == "DASHED")
+      else if(lineType == "DASHEDX2" || lineType == "DASHED" || lineType == "DASHED2")
         return Qt::DashLine;
       else if(lineType == "ByLayer")
         return Qt::SolidLine;

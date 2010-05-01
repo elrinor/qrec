@@ -1,6 +1,7 @@
 #include "LoopConstructor.h"
 #include <limits>
 #include <algorithm> /* for std::swap() */
+#include <set>
 #include <QSet>
 
 namespace qr {
@@ -69,8 +70,14 @@ namespace qr {
       }
     }
 
-    bool isType2(Loop* loop, double sumAngle) {
-      return sumAngle > loop->edges().size() * M_PI;
+    bool isType2(Loop* loop, double sumAngle, double prec) {
+      return sumAngle > (loop->edges().size() - 2) * M_PI + prec;
+    }
+
+    std::set<Edge*> edgeSet(Loop* loop) {
+      std::set<Edge*> result;
+      result.insert(loop->edges().begin(), loop->edges().end());
+      return result;
     }
 
   } // namespace
@@ -81,6 +88,8 @@ namespace qr {
   void LoopConstructor::operator() () {
     foreach(View* view, mViews) {
       QSet<Edge*> visitedEdges;
+
+      std::set<std::set<Edge*>> loopSet;
 
       /* Create outer loop. */
       Edge* outerEdge = NULL;
@@ -94,13 +103,16 @@ namespace qr {
       }
       double sumAngle = 0.0;
       Loop* outerLoop = traceLoop(outerEdge, outerEdge->vertex(0), &sumAngle, mPrec);
-      if(!isType2(outerLoop, sumAngle))
+      if(!isType2(outerLoop, sumAngle, mPrec))
         outerLoop = traceLoop(outerEdge, outerEdge->vertex(1), &sumAngle, mPrec);
+      outerLoop->reverse(); /* Turn it into type-1. */
       outerLoop->setFundamental(false);
       outerLoop->setSolid(true);
       outerLoop->setDisjoint(false);
+      outerLoop->setHatched(false);
       view->add(outerLoop);
       view->setOuterLoop(outerLoop);
+      loopSet.insert(edgeSet(outerLoop));
 
       /* Create fundamental loops. */
       while(true) {
@@ -122,7 +134,7 @@ namespace qr {
         Loop* loop = traceLoop(startEdge, startVertex, &sumAngle, mPrec);
         if(loop == NULL)
           continue;
-        if(isType2(loop, sumAngle)) {
+        if(isType2(loop, sumAngle, mPrec)) {
           /* That's a type-2 loop, we don't need it yet. */
           delete loop; 
           loop = traceLoop(startEdge, startEdge->otherVertex(startVertex), &sumAngle, mPrec);
@@ -130,21 +142,57 @@ namespace qr {
             continue;
         }
 
+        /* Check duplicates. */
+        std::set<Edge*> loopEdges = edgeSet(loop);
+        if(loopSet.find(loopEdges) != loopSet.end()) {
+          delete loop;
+          continue;
+        }
+        loopSet.insert(loopEdges);
+
         loop->setFundamental(true);
         view->add(loop);
-        foreach(Edge* edge, loop->edges()) {
+        foreach(Edge* edge, loop->edges())
           visitedEdges.insert(edge);
-          edge->addLoop(loop);
-        }
       }
+
+      /* Register loops in edges. */
+      foreach(Loop* loop, view->loops())
+        foreach(Edge* edge, loop->edges())
+          edge->addLoop(loop);
 
       /* Find disjoint loops. */
       foreach(Loop* loop, view->loops()) {
         bool isDisjoint = true;
-        foreach(Edge* edge, loop->edges())
-          if(edge->loops().size() > 1)
+        foreach(Edge* edge, loop->edges()) {
+          if(edge->loops().size() > 1) {
             isDisjoint = false;
+          }
+        }
         loop->setDisjoint(isDisjoint);
+      }
+
+      /* Mark hatched loops. */
+      foreach(Loop* loop, view->loops()) {
+        if(loop->view()->type() != View::SECTIONAL)
+          continue;
+
+        bool isHatched = true;
+        Hatch* hatch = NULL;
+        foreach(Edge* edge, loop->edges()) {
+          if(edge->hatch() != NULL) {
+            if(hatch == NULL) {
+              hatch = edge->hatch();
+            } else if(hatch != edge->hatch()) {
+              isHatched = false;
+              break;
+            }
+          } else {
+            isHatched = false;
+            break;
+          }
+        }
+        loop->setHatched(isHatched);
       }
     }
   }

@@ -76,7 +76,7 @@ namespace qr {
   ViewBox* PlaneFolder::operator() () {
     View* root = NULL;
 
-    assert(mViews.size() > 2); 
+    assert(mViews.size() >= 2); 
     /* TODO: 
      * If there are only two views in the drawing, select the upper/left view as the root. */
 

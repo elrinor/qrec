@@ -34,8 +34,16 @@ namespace qr {
       return mPos2d;
     }
 
+    double pos2d(int index) const {
+      return mPos2d[index];
+    }
+
     const Vector3d& pos3d() const {
       return mPos3d;
+    }
+
+    double pos3d(int index) const {
+      return mPos3d[index];
     }
 
     void setPos3d(const Vector3d& pos3d) {

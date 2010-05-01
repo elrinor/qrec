@@ -1,29 +1,28 @@
-#ifndef __QR_LOOP_FORMATION_EXTRUDER_H__
-#define __QR_LOOP_FORMATION_EXTRUDER_H__
+#ifndef __QR_OBJECT_CONSTRUCTOR_H__
+#define __QR_OBJECT_CONSTRUCTOR_H__
 
 #include "config.h"
 #include <cassert>
 #include <carve/poly.hpp>
-#include "LoopFormation.h"
+#include "ViewBox.h"
 
 namespace qr {
 // -------------------------------------------------------------------------- //
-// LoopFormationExtruder
+// ObjectConstructor
 // -------------------------------------------------------------------------- //
-  class LoopFormationExtruder {
+  class ObjectConstructor {
   public:
-    LoopFormationExtruder(LoopFormation* loopFormation, int attempts): mLoopFormation(loopFormation), mAttempts(attempts) {
+    ObjectConstructor(ViewBox* viewBox, int attempts): mViewBox(viewBox), mAttempts(attempts) {
       assert(attempts > 0);
     }
 
     carve::poly::Polyhedron* operator() ();
 
   private:
-    LoopFormation* mLoopFormation;
+    ViewBox* mViewBox;
     int mAttempts;
   };
 
 } // namespace qr
 
-
-#endif // __QR_LOOP_FORMATION_EXTRUDER_H__
+#endif // __QR_OBJECT_CONSTRUCTOR_H__

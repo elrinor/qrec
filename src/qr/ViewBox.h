@@ -7,6 +7,7 @@
 #include <QList>
 #include "GRect.h"
 #include "View.h"
+#include "LoopFormation.h"
 
 namespace qr {
 // -------------------------------------------------------------------------- //
@@ -52,10 +53,20 @@ namespace qr {
       return mBoundingRect;
     }
 
+    const QList<LoopFormation*>& loopFormations() const {
+      return mLoopFormations;
+    }
+
+    void addLoopFormation(LoopFormation* loopFormation) {
+      assert(!mLoopFormations.contains(loopFormation));
+
+      mLoopFormations.push_back(loopFormation);
+    }
 
   private:
     boost::array<QList<View*>, View::MAX_PROJECTION_PLANE + 1> mViews;
     QList<View*> mAllViews;
+    QList<LoopFormation*> mLoopFormations;
 
     mutable bool mIsBoundingRectValid;
     mutable Rect3d mBoundingRect;

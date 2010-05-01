@@ -56,8 +56,13 @@ namespace qr {
         relation->setBelief(belief);
 
         evidence_set_type newEvidenceSet;
-        newEvidenceSet.addEvidence(singletonSet(aView, bView), belief);
-        newEvidenceSet.addEvidence(everything, 1 - belief);
+        container_type single = singletonSet(aView, bView);
+        if(single != everything) {
+          newEvidenceSet.addEvidence(everything, 1 - belief);
+          newEvidenceSet.addEvidence(single, belief);
+        } else {
+          newEvidenceSet.addEvidence(everything, 1);
+        }
         evidenceSet.combine(newEvidenceSet);
       }
     }
