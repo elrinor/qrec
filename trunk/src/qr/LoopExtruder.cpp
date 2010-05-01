@@ -3,6 +3,7 @@
 #include <carve/input.hpp>
 #include "ViewBox.h"
 #include "Utility.h"
+#include "Debug.h"
 
 namespace qr {
 // -------------------------------------------------------------------------- //
@@ -15,8 +16,12 @@ namespace qr {
     double lo = mLoop->view()->viewBox()->boundingRect().min(idx);
     double hi = mLoop->view()->viewBox()->boundingRect().max(idx);
 
-    if(std::abs(mLoop->edge(0)->vertex(0)->pos3d()[idx] - hi) < 1.0e-5) /* TODO: EPS */
+    if(std::abs(mLoop->edge(0)->vertex(0)->pos3d()[idx] - lo) < 1.0e-5) /* TODO: EPS */
       std::swap(lo, hi);
+
+    double correction = mLoop->view()->viewBox()->boundingRect().size(idx);
+    lo += (lo > hi ? 1.0 : -1.0) * correction;
+    hi += (hi > lo ? 1.0 : -1.0) * correction;
 
     /* Add vertices. */
     foreach(const LoopVertex& loopVertex, mLoop->vertices()) {
@@ -69,7 +74,10 @@ namespace qr {
       base[i] = i * 2 + 1;
     data.addFace(base.begin(), base.end());
 
-    return new carve::poly::Polyhedron(data.points, data.getFaceCount(), data.faceIndices);
+    carve::poly::Polyhedron* result = new carve::poly::Polyhedron(data.points, data.getFaceCount(), data.faceIndices);
+    result->canonicalize();
+    //debugShowPoly(result);
+    return result;
   }
 
 } // namespace qr

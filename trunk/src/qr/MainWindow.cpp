@@ -14,6 +14,7 @@
 #include "ViewConstructor.h"
 #include "LoopConstructor.h"
 #include "LoopFormationExtruder.h"
+#include "LoopFormationConstructor.h"
 #include "RelationConstructor.h"
 #include "RelationFilter.h"
 #include "PlaneFolder.h"
@@ -26,10 +27,7 @@
 #include "ViewGlView.h"
 #include "LoopExtruder.h"
 #include "PolyhedronGlItem.h"
-
-
-#include <carve/csg.hpp>
-#include <carve/tree.hpp>
+#include "ObjectConstructor.h"
 
 namespace qr {
 // -------------------------------------------------------------------------- //
@@ -111,6 +109,8 @@ namespace qr {
     (void) RelationConstructor(views, 1.0e-6)();
     (void) RelationFilter(views)();
     ViewBox* viewBox = PlaneFolder(views)();
+    (void) LoopFormationConstructor(viewBox, 1.0e-6)();
+    carve::poly::Polyhedron* poly = ObjectConstructor(viewBox, 64)();
 
     mGraphicsScene->clear();
     QString plainText;
@@ -131,11 +131,6 @@ namespace qr {
         );
       }
     }
-
-    std::vector<Loop*> boundOnSolid;
-    foreach(View* view, views)
-      boundOnSolid.push_back(view->outerLoop());
-    carve::poly::Polyhedron* poly = LoopFormationExtruder(boundOnSolid, 64)();
 
     mViewBoxGlItem = new ViewBoxGlItem(viewBox);
     mPolyhedronGlItem = new PolyhedronGlItem(poly);
