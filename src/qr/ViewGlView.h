@@ -40,6 +40,7 @@ namespace qr {
     virtual void resizeGL(int width, int height);
     virtual void mousePressEvent(QMouseEvent* event);
     virtual void mouseMoveEvent(QMouseEvent* event);
+    virtual void wheelEvent(QWheelEvent* event);
 
   private:
     QPoint mLastPos;

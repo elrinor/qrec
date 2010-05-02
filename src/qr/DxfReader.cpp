@@ -110,7 +110,7 @@ namespace qr {
         return Qt::DashDotLine;
       else if(lineType == "DASHEDX2" || lineType == "DASHED" || lineType == "DASHED2")
         return Qt::DashLine;
-      else if(lineType == "ByLayer")
+      else if(lineType == "ByLayer" || lineType == "CONTINUOUS")
         return Qt::SolidLine;
       else
         Unreachable();

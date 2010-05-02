@@ -1,6 +1,7 @@
 #include "ViewGlView.h"
 #include <algorithm> /* for std::min() */
 #include <QMouseEvent>
+#include <QWheelEvent>
 
 namespace qr {
   ViewGlView::ViewGlView(QWidget* parent): QGLWidget(parent), mProjectionType(PERSPECTIVE) {
@@ -87,6 +88,16 @@ namespace qr {
     double sensitivity = 0.005; /* TODO */
     mTransform = AngleAxisd(sensitivity * dx, Vector3d(0, 0, 1)) * AngleAxisd(sensitivity * dy, Vector3d(1, 0, 0)) * mTransform;
     mLastPos = event->pos();
+
+    updateGL();
+  }
+
+  void ViewGlView::wheelEvent(QWheelEvent* event) {
+    int numDegrees = event->delta() / 8;
+
+    mEyePos += numDegrees * -1.0; /* TODO */
+    if(mEyePos < 50)
+      mEyePos = 50;
 
     updateGL();
   }

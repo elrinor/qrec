@@ -17,6 +17,13 @@ namespace qr {
       *sumAngle = 0.0;
 
       while(true) {
+        /*std::vector<Edge*> edges;
+        std::copy(loop->edges().begin(), loop->edges().end(), std::back_inserter(edges));
+
+        if((vertex->pos2d() - Vector2d(0.0, 66.0)).isZero(0.001)) {
+          int x  =1;
+        }*/
+
         Edge* nextEdge = NULL;
         double minAngle = std::numeric_limits<double>::max();
         foreach(Edge* otherEdge, edge->extensions(vertex->pos2d(), prec)) {
@@ -28,7 +35,7 @@ namespace qr {
 
           Vector3d cross = Vector3d(otherEdgeDir.x(), otherEdgeDir.y(), 0.0).cross(Vector3d(edgeDir.x(), edgeDir.y(), 0.0));
 
-          double angle = acos(edgeDir.dot(otherEdgeDir));
+          double angle = acos(std::max(-1.0, std::min(1.0, edgeDir.dot(otherEdgeDir))));
           if(cross.z() < 0)
             angle = -angle + 2 * M_PI;
 
@@ -41,7 +48,7 @@ namespace qr {
         *sumAngle += minAngle;
         if(nextEdge == NULL)
           break;
-          
+        
         loop->addEdge(nextEdge);
         edge = nextEdge;
         vertex = nextEdge->otherVertex(vertex);
