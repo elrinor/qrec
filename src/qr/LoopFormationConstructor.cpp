@@ -174,6 +174,21 @@ namespace qr {
       if(classified)
         continue;
 
+      /* If it has a hatched neighbour then it's depression. */
+      foreach(Loop* loop, loopFormation->loops()) {
+        if(loop->view()->type() == View::SECTIONAL && loop->isFundamental()) {
+          foreach(Edge* edge, loop->edges()) {
+            if(edge->hatch() != NULL) {
+              loopFormation->setType(LoopFormation::DEPRESSION);
+              classified = true;
+              break;
+            }
+          }
+        }
+      }
+      if(classified)
+        continue;
+
       /* It it's outer loop - then it's protrusion. */
       foreach(Loop* loop, loopFormation->loops()) {
         if(loop == loop->view()->outerLoop()) {
