@@ -64,11 +64,9 @@ namespace qr {
             isSolid = false;
         loop->setSolid(isSolid);
 
-        /*
-        QColor color = QColor(rand() * 255 / RAND_MAX, rand() * 255 / RAND_MAX, rand() * 255 / RAND_MAX);
+        /*QColor color = QColor(rand() * 255 / RAND_MAX, rand() * 255 / RAND_MAX, rand() * 255 / RAND_MAX);
         foreach(Edge* edge, loop->edges())
-          edge->setPen(QPen(color));
-        */
+          edge->setPen(QPen(color));*/
 
         return loop;
       } else {

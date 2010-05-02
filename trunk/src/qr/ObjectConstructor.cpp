@@ -13,6 +13,7 @@ namespace qr {
   carve::poly::Polyhedron* ObjectConstructor::operator() () {
     QList<LoopFormation*> loopFormations;
     std::copy(mViewBox->loopFormations().begin(), mViewBox->loopFormations().end(), std::back_inserter(loopFormations));
+    //std::random_shuffle(loopFormations.begin(), loopFormations.end());
 
     QHash<LoopFormation*, carve::poly::Polyhedron*> formationPolygons;
     foreach(LoopFormation* loopFormation, loopFormations)
