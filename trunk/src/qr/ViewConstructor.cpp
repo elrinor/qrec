@@ -66,7 +66,7 @@ namespace qr {
         if(bComponent.edges.empty() || &aComponent == &bComponent)
           continue;
 
-        if(aComponent.boundingRect.contains(bComponent.boundingRect, mPrec)) { /* TODO: is contains() OK here? */
+        if(aComponent.boundingRect.intersects(bComponent.boundingRect, mPrec)) { /* TODO: is intersects() OK here? */
           aComponent.edges.unite(bComponent.edges);
           bComponent.edges.clear();
         }
