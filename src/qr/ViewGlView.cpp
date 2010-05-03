@@ -52,7 +52,7 @@ namespace qr {
     if(mProjectionType == PERSPECTIVE)
       gluPerspective(90, ratio, 1, 1000);
     else if(mProjectionType == ORTHOGONAL)
-      glOrtho(-200 * ratio, 200 * ratio, -200, 200, 1, 1000);
+      glOrtho(-mEyePos * ratio, mEyePos * ratio, -mEyePos, mEyePos, 1, 1000);
     else
       Unreachable();
 

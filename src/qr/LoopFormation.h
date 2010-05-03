@@ -31,6 +31,10 @@ namespace qr {
       return mLoops;
     }
 
+    Loop* loop(int index) const {
+      return mLoops[index];
+    }
+
     Type type() const {
       return mType;
     }

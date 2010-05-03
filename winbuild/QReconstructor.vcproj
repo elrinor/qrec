@@ -198,6 +198,14 @@
 						>
 					</File>
 					<File
+						RelativePath="..\src\qr\LoopFormationConstructor.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\LoopFormationConstructor.h"
+						>
+					</File>
+					<File
 						RelativePath="..\src\qr\LoopMerger.cpp"
 						>
 					</File>
@@ -330,11 +338,39 @@
 					Name="Carve"
 					>
 					<File
+						RelativePath="..\src\qr\Debug.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\Debug.h"
+						>
+					</File>
+					<File
 						RelativePath="..\src\qr\LoopExtruder.cpp"
 						>
 					</File>
 					<File
 						RelativePath="..\src\qr\LoopExtruder.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\LoopFormation.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\LoopFormationExtruder.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\LoopFormationExtruder.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\ObjectConstructor.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\qr\ObjectConstructor.h"
 						>
 					</File>
 				</Filter>
