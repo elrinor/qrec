@@ -58,19 +58,25 @@ namespace qr {
         component.boundingRect.extend(edge->boundingRect());
 
     /* Merge components. */
-    foreach(detail::ConnectedComponent& aComponent, components) {
-      if(aComponent.edges.empty())
-        continue;
-
-      foreach(detail::ConnectedComponent& bComponent, components) {
-        if(bComponent.edges.empty() || &aComponent == &bComponent)
+    while (true) {
+      bool merged = false;
+      foreach(detail::ConnectedComponent& aComponent, components) {
+        if(aComponent.edges.empty())
           continue;
 
-        if(aComponent.boundingRect.intersects(bComponent.boundingRect, mPrec)) { /* TODO: is intersects() OK here? */
-          aComponent.edges.unite(bComponent.edges);
-          bComponent.edges.clear();
+        foreach(detail::ConnectedComponent& bComponent, components) {
+          if(bComponent.edges.empty() || &aComponent == &bComponent)
+            continue;
+
+          if(aComponent.boundingRect.intersects(bComponent.boundingRect, mPrec)) { /* TODO: is intersects() OK here? */
+            aComponent.edges.unite(bComponent.edges);
+            bComponent.edges.clear();
+            merged = true;
+          }
         }
       }
+      if(!merged)
+        break;
     }
 
     /* Construct views. */
