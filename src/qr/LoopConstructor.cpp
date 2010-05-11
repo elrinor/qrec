@@ -176,6 +176,7 @@ namespace qr {
         }
         loop->setDisjoint(isDisjoint);
       }
+      /* TODO: mark solid loops connected by dotted edges only as disjoint */
 
       /* Mark hatched loops. */
       foreach(Loop* loop, view->loops()) {

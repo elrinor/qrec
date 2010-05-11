@@ -53,9 +53,11 @@ namespace qr {
     }
 
     /* Calculate bounding boxes for components. */
-    foreach(detail::ConnectedComponent& component, components)
+    foreach(detail::ConnectedComponent& component, components) {
+      component.boundingRect = Rect2d();
       foreach(Edge* edge, component.edges)
         component.boundingRect.extend(edge->boundingRect());
+    }
 
     /* Merge components. */
     while (true) {
@@ -70,6 +72,7 @@ namespace qr {
 
           if(aComponent.boundingRect.intersects(bComponent.boundingRect, mPrec)) { /* TODO: is intersects() OK here? */
             aComponent.edges.unite(bComponent.edges);
+            aComponent.boundingRect.extend(bComponent.boundingRect);
             bComponent.edges.clear();
             merged = true;
           }
