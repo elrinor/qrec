@@ -156,12 +156,12 @@ namespace qr {
 
   template<class Vector>
   inline bool GSegment<Vector>::isParallel(const GSegment<Vector>& other, double prec) const {
-    return asLine().isParallel(other.asLine());
+    return asLine().isParallel(other.asLine(), prec);
   }
 
   template<class Vector>
   inline bool GSegment<Vector>::isParallel(const GLine<Vector>& line, double prec) const {
-    return asLine().isParallel(line);
+    return asLine().isParallel(line, prec);
   }
 
   template<class Vector>

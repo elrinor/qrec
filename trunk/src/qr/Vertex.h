@@ -76,6 +76,14 @@ namespace qr {
     Type mType;
   };
 
+
+  inline Rect3d Edge::boundingRect3d() const {
+    Rect3d result;
+    result.extend(vertex(0)->pos3d());
+    result.extend(vertex(1)->pos3d());
+    return result;
+  }
+
 } // namespace qr
 
 #endif // __QR_VERTEX_H__

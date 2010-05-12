@@ -287,6 +287,8 @@ namespace qr {
       return mSegment.boundingRect();
     }
 
+    inline Rect3d boundingRect3d() const;
+
     Hatch* hatch() const {
       return mHatch;
     }
@@ -364,5 +366,7 @@ namespace qr {
   };
 
 } // namespace qr
+
+#include "Vertex.h"
 
 #endif // __QR_LINE_PRIMITIVE_H__

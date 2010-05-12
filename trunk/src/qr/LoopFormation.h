@@ -13,13 +13,25 @@ namespace qr {
 // -------------------------------------------------------------------------- //
   class LoopFormation: boost::noncopyable {
   public:
+    struct Cone {
+      Vector3d base;
+      Vector3d baseX, baseY;
+      Vector3d height;
+      Vector3d topX, topY;
+    };
+
     enum Type {
       PROTRUSION,
       DEPRESSION,
       UNKNOWN = -1
     };
 
-    LoopFormation(): mType(UNKNOWN) {}
+    enum Class {
+      NORMAL,
+      CONE
+    };
+
+    LoopFormation(): mType(UNKNOWN), mClass(NORMAL) {}
 
     void addLoop(Loop* loop) {
       assert(!mLoops.contains(loop));
@@ -43,9 +55,29 @@ namespace qr {
       mType = type;
     }
 
+    Class clazz() const {
+      return mClass;
+    }
+
+    void setClass(Class clazz) {
+      mClass = clazz;
+    }
+
+    const Cone& asCone() const {
+      assert(mClass == CONE);
+      return mCone;
+    }
+
+    Cone& asCone() {
+      assert(mClass == CONE);
+      return mCone;
+    }
+
   private:
     Type mType;
+    Class mClass;
     QList<Loop*> mLoops;
+    Cone mCone;
   };
 
 } // namespace qr

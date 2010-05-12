@@ -5,7 +5,7 @@
 #include <QHBoxLayout>
 
 namespace qr {
-  void debugShowPoly(carve::poly::Polyhedron* poly) {
+  void debugShowPoly(carve::poly::Polyhedron* poly) { 
     ViewGlView* glView = new ViewGlView();
     glView->addItem(new PolyhedronGlItem(poly));
 

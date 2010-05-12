@@ -214,6 +214,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\src\qr\LoopUtils.h"
+						>
+					</File>
+					<File
 						RelativePath="..\src\qr\PlaneFolder.cpp"
 						>
 					</File>

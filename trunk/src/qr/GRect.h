@@ -176,6 +176,18 @@ namespace qr {
         (mMin.cwise() <= -std::numeric_limits<double>::max()).any();
     }
 
+    GRect<Vector1d> project(int axisIndex) const {
+      GRect<Vector1d> result;
+      result.setMin(0, mMin[axisIndex]);
+      result.setMax(0, mMin[axisIndex]);
+      return result;
+    }
+
+    bool isCoincident(const GRect& other, double prec) const {
+      return (mMin - other.mMin).isZero(prec) && (mMax - other.mMax).isZero(prec);
+    }
+
+
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
   private:
@@ -191,3 +203,4 @@ namespace qr {
 #include "Interop.h"
 
 #endif // __QR_G_RECT_H__
+
