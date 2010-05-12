@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include <cassert>
+#include <QList>
 #include <carve/poly.hpp>
 #include "LoopFormation.h"
 
@@ -12,7 +13,9 @@ namespace qr {
 // -------------------------------------------------------------------------- //
   class LoopFormationExtruder {
   public:
-    LoopFormationExtruder(LoopFormation* loopFormation, int attempts): mLoopFormation(loopFormation), mAttempts(attempts) {
+    LoopFormationExtruder(LoopFormation* loopFormation, int attempts, QList<carve::poly::Polyhedron*>& corrections): 
+      mLoopFormation(loopFormation), mAttempts(attempts), mCorrections(corrections) 
+    {
       assert(attempts > 0);
     }
 
@@ -21,6 +24,7 @@ namespace qr {
   private:
     LoopFormation* mLoopFormation;
     int mAttempts;
+    QList<carve::poly::Polyhedron*>& mCorrections;
   };
 
 } // namespace qr

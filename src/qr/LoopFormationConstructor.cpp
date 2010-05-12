@@ -2,6 +2,7 @@
 #include <set>
 #include <boost/foreach.hpp>
 #include "LoopMerger.h"
+#include "LoopUtils.h"
 
 namespace qr {
   namespace {
@@ -78,6 +79,11 @@ namespace qr {
       return false;
     }
 
+    Vector3d to3d(const Vector2d& v) {
+      return Vector3d(v.x(), v.y(), 0.0);
+    }
+
+
   } // namespace
 
 // -------------------------------------------------------------------------- //
@@ -107,6 +113,82 @@ namespace qr {
         continue;
       }
 
+      /* Evil checking for cones. */
+      if(loopFormation->loops().size() >= 2) {
+
+        Loop *circle = NULL, *trapezoid = NULL;
+
+        foreach(Loop* loop, loopFormation->loops())
+          if(LoopUtils::isCircle(loop, mPrec))
+            circle = loop;
+
+        foreach(Loop* loop, loopFormation->loops())
+          if(LoopUtils::isTrapezoid(loop, mPrec))
+            trapezoid = loop;
+
+        /* TODO: >2 case not handled... */
+
+        if(circle != NULL && trapezoid != NULL) {
+          Vector2d center = circle->edge(0)->asArc().center();
+          foreach(Loop* loop, circle->view()->loops()) {
+            if(loop != circle && LoopUtils::isCircle(loop, mPrec) && (loop->edge(0)->asArc().center() - center).isZero(mPrec)) {
+              int commonAxis = 3 - circle->view()->perpendicularAxisIndex() - trapezoid->view()->perpendicularAxisIndex();
+              
+              Edge* edgeOne = NULL, *edgeTwo = NULL;
+
+              Rect1d circleOne = circle->boundingRect3d().project(commonAxis);
+              Rect1d circleTwo = loop->boundingRect3d().project(commonAxis);
+
+              Rect1d edge0 = trapezoid->edge(0)->boundingRect3d().project(commonAxis);
+              Rect1d edge1 = trapezoid->edge(1)->boundingRect3d().project(commonAxis);
+              Rect1d edge2 = trapezoid->edge(2)->boundingRect3d().project(commonAxis);
+              Rect1d edge3 = trapezoid->edge(3)->boundingRect3d().project(commonAxis);
+
+              if(circleOne.isCoincident(edge0, mPrec) && circleTwo.isCoincident(edge2, mPrec)) {
+                edgeOne = trapezoid->edge(0);
+                edgeTwo = trapezoid->edge(2);
+              } else if(circleOne.isCoincident(edge2, mPrec) && circleTwo.isCoincident(edge0, mPrec)) {
+                edgeOne = trapezoid->edge(2);
+                edgeTwo = trapezoid->edge(0);
+              } else if(circleOne.isCoincident(edge1, mPrec) && circleTwo.isCoincident(edge3, mPrec)) {
+                edgeOne = trapezoid->edge(1);
+                edgeTwo = trapezoid->edge(3);
+              } else if(circleOne.isCoincident(edge3, mPrec) && circleTwo.isCoincident(edge1, mPrec)) {
+                edgeOne = trapezoid->edge(3);
+                edgeTwo = trapezoid->edge(1);
+              }
+
+              if(edgeOne != NULL && edgeTwo != NULL) {
+                /* Ignore non-cone set. */
+                std::set<Loop*> loopSet0;
+                loopSet0.insert(circle);
+                loopSet0.insert(trapezoid);
+                formationSet.insert(loopSet0);
+                std::set<Loop*> loopSet1;
+                loopSet0.insert(loop);
+                loopSet0.insert(trapezoid);
+                formationSet.insert(loopSet1);
+
+                /* Mark as cone. */
+                loopFormation->addLoop(loop);
+                loopFormation->setClass(LoopFormation::CONE);
+
+                LoopFormation::Cone& cone = loopFormation->asCone();
+                cone.base = circle->view()->transform() * to3d(center);
+                cone.base[circle->view()->perpendicularAxisIndex()] = edgeOne->boundingRect3d().min(circle->view()->perpendicularAxisIndex());
+                cone.baseX = circle->view()->transform().linear() * to3d(Vector2d(0.0, 1.0) * circle->edge(0)->asArc().longAxis().norm());
+                cone.baseY = circle->view()->transform().linear() * to3d(Vector2d(1.0, 0.0) * circle->edge(0)->asArc().longAxis().norm());
+                cone.topX = loop->view()->transform().linear() * to3d(Vector2d(0.0, 1.0) * loop->edge(0)->asArc().longAxis().norm());
+                cone.topY = loop->view()->transform().linear() * to3d(Vector2d(1.0, 0.0) * loop->edge(0)->asArc().longAxis().norm());
+                cone.height = trapezoid->view()->transform().linear() * to3d(edgeTwo->boundingRect().center() - edgeOne->boundingRect().center());
+                break;
+              }
+            }
+          }
+        }
+      }
+
+
       bool hasDisjoint = false;
       foreach(Loop* loop, loopFormation->loops())
         if(loop->isDisjoint())
@@ -116,18 +198,20 @@ namespace qr {
         continue;
       }
 
-      QSet<View*> formationViews;
-      bool hasDuplicates = false;
-      foreach(Loop* loop, loopFormation->loops()) {
-        if(formationViews.contains(loop->view())) {
-          hasDuplicates = true;
-          break;
+      if(loopFormation->clazz() != LoopFormation::CONE) {
+        QSet<View*> formationViews;
+        bool hasDuplicates = false;
+        foreach(Loop* loop, loopFormation->loops()) {
+          if(formationViews.contains(loop->view())) {
+            hasDuplicates = true;
+            break;
+          }
+          formationViews.insert(loop->view());
         }
-        formationViews.insert(loop->view());
-      }
-      if(hasDuplicates) {
-        delete loopFormation;
-        continue;
+        if(hasDuplicates) {
+          delete loopFormation;
+          continue;
+        }
       }
 
       /* Check for duplicates. */
