@@ -152,6 +152,11 @@ namespace qr {
       return ((mMin.cwise() - prec).cwise() <= other.mMax).all() && ((other.mMin.cwise() - prec).cwise() <= mMax).all();
     }
 
+    bool intersectsOpen(const GRect& other, double prec) const {
+      return ((mMin.cwise() + prec).cwise() <= other.mMax).all() && ((other.mMin.cwise() + prec).cwise() <= mMax).all();
+    }
+
+
     bool intersects(const GLine<Vector>& line, double prec) const;
 
     bool intersects(const GSegment<Vector>& segment, double prec) const;
@@ -179,7 +184,7 @@ namespace qr {
     GRect<Vector1d> project(int axisIndex) const {
       GRect<Vector1d> result;
       result.setMin(0, mMin[axisIndex]);
-      result.setMax(0, mMin[axisIndex]);
+      result.setMax(0, mMax[axisIndex]);
       return result;
     }
 

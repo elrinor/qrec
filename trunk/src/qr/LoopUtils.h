@@ -42,7 +42,7 @@ namespace qr {
     }
 
   private: 
-    static bool isTrapezoid(Edge* l, Edge* u, Edge* r, Edge* d, double prec) {
+    static bool isTrapezoid(Edge* /*l*/, Edge* u, Edge* /*r*/, Edge* d, double prec) {
       return u->asSegment().isParallel(d->asSegment(), prec);
     }
 
