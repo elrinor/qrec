@@ -101,7 +101,25 @@ namespace qr {
       loopFormation->addLoop(aLoop);
       
       foreach(Loop* bLoop, allLoops) {
-        if(aLoop->view() == bLoop->view() || aLoop->view()->perpendicularAxisIndex() == bLoop->view()->perpendicularAxisIndex())
+        if(aLoop->view()->perpendicularAxisIndex() == bLoop->view()->perpendicularAxisIndex())
+          continue;
+
+        bool empty = false;
+        foreach(Loop* fLoop, loopFormation->loops()) {
+          if(fLoop->view()->perpendicularAxisIndex() == bLoop->view()->perpendicularAxisIndex()) {
+            empty = true;
+            break;
+          }
+
+          int commonAxis = 3 - fLoop->view()->perpendicularAxisIndex() - bLoop->view()->perpendicularAxisIndex();
+          Rect1d bRect = bLoop->boundingRect3d().project(commonAxis);
+          Rect1d fRect = fLoop->boundingRect3d().project(commonAxis);
+          if(!bRect.intersectsOpen(fRect, mPrec)) { /* TODO: maybe isCoincident */
+            empty = true;
+            break;
+          }
+        }
+        if(empty)
           continue;
 
         if(matches(aLoop, bLoop, mPrec))
