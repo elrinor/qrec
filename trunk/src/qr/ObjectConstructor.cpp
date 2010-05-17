@@ -51,7 +51,7 @@ namespace qr {
       }
     }
 
-    debugShowPoly(result);
+    //debugShowPoly(result);
 
     foreach(carve::poly::Polyhedron* correction, corrections) {
       carve::csg::CSG_TreeNode* lNode = new carve::csg::CSG_PolyNode(result, true);
@@ -59,7 +59,7 @@ namespace qr {
       carve::csg::CSG::OP op = carve::csg::CSG::A_MINUS_B;
       carve::csg::CSG_TreeNode* node = new carve::csg::CSG_OPNode(lNode, rNode, op, true);
 
-      debugShowPoly(correction);
+      //debugShowPoly(correction);
 
       carve::csg::CSG csg;
       result = node->eval(csg);
