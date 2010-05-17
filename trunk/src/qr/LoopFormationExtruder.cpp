@@ -263,7 +263,7 @@ namespace qr {
           }
 
           foreach(Loop* otherLoop, mLoopFormation->loops()) {
-            if(loop < otherLoop)
+            if(loop <= otherLoop)
               continue; /* Enforce ordering in a strange way =). */
 
             if(otherLoop->view()->perpendicularAxisIndex() == loop->view()->perpendicularAxisIndex())
@@ -306,14 +306,41 @@ namespace qr {
                 continue;
               spheres.insert(sphere);
 
-              /* Create bounding poly. */                           
-              carve::poly::Polyhedron* firstWrapper = genArcWrapper(edges);
-              carve::poly::Polyhedron* secondWrapper = genArcWrapper(otherEdges);
-
+              /* Get center & radius. */                           
               Vector3d sphereCenter = center3d;
               sphereCenter[edge->view()->perpendicularAxisIndex()] = otherCenter3d[edge->view()->perpendicularAxisIndex()];
 
               double radius = edge->asArc().longAxis().norm();
+
+              /* If we have more than two loops - check the 3rd one. */
+              if(mLoopFormation->loops().size() > 2) {
+                Loop* lastLoop = mLoopFormation->loop(0);
+                if(lastLoop == loop || lastLoop == otherLoop)
+                  lastLoop = mLoopFormation->loop(1);
+                if(lastLoop == loop || lastLoop == otherLoop)
+                  lastLoop = mLoopFormation->loop(2);
+
+                bool hasLast = false;
+                foreach(Edge* edge, lastLoop->edges()) {
+                  if(edge->type() != Edge::ARC)
+                    continue;
+
+                  Vector3d lastCenter = lastLoop->view()->transform() * to3d(edge->asArc().center());
+
+                  lastCenter[lastLoop->view()->perpendicularAxisIndex()] = sphereCenter[lastLoop->view()->perpendicularAxisIndex()];
+
+                  if((lastCenter - sphereCenter).isZero(1.0e-6)) { /* TODO: EPS */
+                    hasLast = true;
+                    break;
+                  }
+                }
+                if(!hasLast)
+                  continue;
+              }
+
+
+              carve::poly::Polyhedron* firstWrapper = genArcWrapper(edges);
+              carve::poly::Polyhedron* secondWrapper = genArcWrapper(otherEdges);
 
               carve::poly::Polyhedron* cube = genBox(Rect3d(center3d - Vector3d(radius, radius, radius), 2 * Vector3d(radius, radius, radius)));
 
