@@ -164,7 +164,7 @@ namespace qr {
         a = a - origin;
         b = b - origin;
 
-        carve::poly::Polyhedron* poly = genPrism(origin, height, 3 * a, 3 * b);
+        carve::poly::Polyhedron* poly = genPrism(origin - height, 3 * height, 3 * a, 3 * b);
         if(result == NULL) {
           result = poly;
         } else {
@@ -237,7 +237,7 @@ namespace qr {
       QList<Loop*> loops;
       std::copy(mLoopFormation->loops().begin(), mLoopFormation->loops().end(), std::back_inserter(loops));
 
-      QList<carve::poly::Polyhedron*> additions;
+      QList<carve::poly::Polyhedron*> subtractions;
 
       /* Find potential spheres. */
       std::set<std::set<Edge*>> spheres;
@@ -342,7 +342,10 @@ namespace qr {
               carve::poly::Polyhedron* firstWrapper = genArcWrapper(edges);
               carve::poly::Polyhedron* secondWrapper = genArcWrapper(otherEdges);
 
-              carve::poly::Polyhedron* cube = genBox(Rect3d(center3d - Vector3d(radius, radius, radius), 2 * Vector3d(radius, radius, radius)));
+              //debugShowPoly(firstWrapper);
+              //debugShowPoly(secondWrapper);
+
+              carve::poly::Polyhedron* cube = genBox(Rect3d(sphereCenter - Vector3d(radius, radius, radius), 2 * Vector3d(radius, radius, radius)));
 
               carve::csg::CSG_TreeNode* node0 = new carve::csg::CSG_OPNode(
                   new carve::csg::CSG_PolyNode(secondWrapper, true),
@@ -364,36 +367,29 @@ namespace qr {
               carve::poly::Polyhedron* boundingPoly = node1->eval(csg1);
               boundingPoly->canonicalize();
 
+              //debugShowPoly(boundingPoly);
+
               /* Create result. */
               carve::poly::Polyhedron* spherePoly = genSphere(sphereCenter, radius);
 
-              if(mLoopFormation->type() == LoopFormation::DEPRESSION) {
-                carve::csg::CSG_TreeNode* otherNode = 
-                  new carve::csg::CSG_OPNode(
-                    new carve::csg::CSG_PolyNode(boundingPoly, false),
-                    new carve::csg::CSG_PolyNode(spherePoly, false),
-                    carve::csg::CSG::INTERSECTION,
-                    true
-                  );
-                carve::csg::CSG csg;
-                carve::poly::Polyhedron* addPoly = otherNode->eval(csg);
-                addPoly->canonicalize();
-                additions.push_back(addPoly);
-              }
+              carve::csg::CSG_TreeNode* anotherNode = 
+                new carve::csg::CSG_OPNode(
+                  new carve::csg::CSG_PolyNode(boundingPoly, false),
+                  new carve::csg::CSG_PolyNode(spherePoly, false),
+                  carve::csg::CSG::A_MINUS_B,
+                  true
+                );
+              carve::csg::CSG csg;
+              carve::poly::Polyhedron* diffPoly = anotherNode->eval(csg);
+              diffPoly->canonicalize();
 
-              if(mLoopFormation->type() == LoopFormation::PROTRUSION) {
-                carve::csg::CSG_TreeNode* anotherNode = 
-                  new carve::csg::CSG_OPNode(
-                    new carve::csg::CSG_PolyNode(boundingPoly, false),
-                    new carve::csg::CSG_PolyNode(spherePoly, false),
-                    carve::csg::CSG::A_MINUS_B,
-                    true
-                  );
-                carve::csg::CSG csg;
-                carve::poly::Polyhedron* diffPoly = anotherNode->eval(csg);
-                diffPoly->canonicalize();
+              debugShowPoly(diffPoly);
+
+              if(mLoopFormation->type() == LoopFormation::PROTRUSION)
                 mCorrections.push_back(diffPoly);
-              }
+
+              if(mLoopFormation->type() == LoopFormation::DEPRESSION)
+                subtractions.push_back(diffPoly);
 
               delete boundingPoly;
               delete spherePoly;
@@ -435,13 +431,13 @@ namespace qr {
       }
 
       if(result != NULL) {
-        foreach(carve::poly::Polyhedron* addition, additions) {
+        foreach(carve::poly::Polyhedron* subtration, subtractions) {
           carve::csg::CSG_TreeNode* lNode = new carve::csg::CSG_PolyNode(result, true);
-          carve::csg::CSG_TreeNode* rNode = new carve::csg::CSG_PolyNode(addition, true);
-          carve::csg::CSG::OP op = carve::csg::CSG::UNION;
+          carve::csg::CSG_TreeNode* rNode = new carve::csg::CSG_PolyNode(subtration, true);
+          carve::csg::CSG::OP op = carve::csg::CSG::A_MINUS_B;
           carve::csg::CSG_TreeNode* node = new carve::csg::CSG_OPNode(lNode, rNode, op, true);
 
-          //debugSavePoly(correction, op);
+          //debugShowPoly(subtration);
 
           carve::csg::CSG csg;
           result = node->eval(csg);
