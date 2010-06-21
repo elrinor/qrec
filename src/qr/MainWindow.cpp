@@ -110,7 +110,7 @@ namespace qr {
     (void) RelationFilter(views)();
     ViewBox* viewBox = PlaneFolder(views)();
     (void) LoopFormationConstructor(viewBox, 1.0e-6)();
-    carve::poly::Polyhedron* poly = ObjectConstructor(viewBox, 64)();
+    carve::poly::Polyhedron* poly = ObjectConstructor(viewBox, 8)();
 
     mGraphicsScene->clear();
     QString plainText;

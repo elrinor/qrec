@@ -13,8 +13,8 @@ namespace qr {
 // -------------------------------------------------------------------------- //
   class LoopFormationExtruder {
   public:
-    LoopFormationExtruder(LoopFormation* loopFormation, int attempts, QList<carve::poly::Polyhedron*>& corrections): 
-      mLoopFormation(loopFormation), mAttempts(attempts), mCorrections(corrections) 
+    LoopFormationExtruder(LoopFormation* loopFormation, int attempts, QList<carve::poly::Polyhedron*>& subtractions, QList<carve::poly::Polyhedron*>& additions): 
+      mLoopFormation(loopFormation), mAttempts(attempts), mSubtractions(subtractions), mAdditions(additions)
     {
       assert(attempts > 0);
     }
@@ -24,7 +24,7 @@ namespace qr {
   private:
     LoopFormation* mLoopFormation;
     int mAttempts;
-    QList<carve::poly::Polyhedron*>& mCorrections;
+    QList<carve::poly::Polyhedron*> &mSubtractions, &mAdditions;
   };
 
 } // namespace qr

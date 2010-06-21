@@ -16,11 +16,12 @@ namespace qr {
     std::copy(mViewBox->loopFormations().begin(), mViewBox->loopFormations().end(), std::back_inserter(loopFormations));
     //std::random_shuffle(loopFormations.begin(), loopFormations.end());
 
-    QList<carve::poly::Polyhedron*> corrections;
+    QList<carve::poly::Polyhedron*> subtractions;
+    QList<carve::poly::Polyhedron*> additions;
 
     QHash<LoopFormation*, carve::poly::Polyhedron*> formationPolygons;
     foreach(LoopFormation* loopFormation, loopFormations)
-      formationPolygons[loopFormation] = LoopFormationExtruder(loopFormation, mAttempts, corrections)();
+      formationPolygons[loopFormation] = LoopFormationExtruder(loopFormation, mAttempts, subtractions, additions)();
 
     /* Protrusions go first. */
     for(int i = 0; i < loopFormations.size(); i++)
@@ -33,7 +34,7 @@ namespace qr {
     foreach(LoopFormation* loopFormation, loopFormations) {
       carve::poly::Polyhedron* poly = formationPolygons[loopFormation];
 
-      //debugSavePoly(correction, loopFormation->type() == LoopFormation::PROTRUSION ? carve::csg::CSG::UNION : carve::csg::CSG::A_MINUS_B);
+      //debugSavePoly(subtraction, loopFormation->type() == LoopFormation::PROTRUSION ? carve::csg::CSG::UNION : carve::csg::CSG::A_MINUS_B);
 
       if(poly == NULL)
         continue;
@@ -53,13 +54,22 @@ namespace qr {
 
     //debugShowPoly(result);
 
-    foreach(carve::poly::Polyhedron* correction, corrections) {
+    foreach(carve::poly::Polyhedron* subtraction, subtractions) {
       carve::csg::CSG_TreeNode* lNode = new carve::csg::CSG_PolyNode(result, true);
-      carve::csg::CSG_TreeNode* rNode = new carve::csg::CSG_PolyNode(correction, true);
+      carve::csg::CSG_TreeNode* rNode = new carve::csg::CSG_PolyNode(subtraction, true);
       carve::csg::CSG::OP op = carve::csg::CSG::A_MINUS_B;
       carve::csg::CSG_TreeNode* node = new carve::csg::CSG_OPNode(lNode, rNode, op, true);
 
-      //debugShowPoly(correction);
+      carve::csg::CSG csg;
+      result = node->eval(csg);
+      result->canonicalize();
+    }
+
+    foreach(carve::poly::Polyhedron* addition, additions) {
+      carve::csg::CSG_TreeNode* lNode = new carve::csg::CSG_PolyNode(result, true);
+      carve::csg::CSG_TreeNode* rNode = new carve::csg::CSG_PolyNode(addition, true);
+      carve::csg::CSG::OP op = carve::csg::CSG::UNION;
+      carve::csg::CSG_TreeNode* node = new carve::csg::CSG_OPNode(lNode, rNode, op, true);
 
       carve::csg::CSG csg;
       result = node->eval(csg);
