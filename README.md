@@ -1,4 +1,4 @@
-#About
+# About
 
 QRec is a tool for automatic reconstruction of 3d models from engineering drawings. Current version is just a proof-of-concept and is not guaranteed to work on any drawings but the ones in the repository.
 
